@@ -10,3 +10,9 @@
 include in package.json for start both things at a same time
 command ->  npm run both
 
+error:
+
+localhost/:1 Access to fetch at 'http://localhost:5000/api/notes/fetchallnotes' from origin 'http://localhost:3000' has been blocked by CORS policy:
+
+`npm install cors` in backend
+

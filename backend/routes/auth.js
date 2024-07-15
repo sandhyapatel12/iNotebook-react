@@ -10,6 +10,9 @@ const fetchUser = require('../middleware/fetchUser');
 //create secret string
 const JWT_SECRET = "niceone";
 
+
+
+
 //ROUTE :1 create a user using : POST "api/auth/createuser"  --> no login required
 router.post('/createuser', 
 [
@@ -20,10 +23,13 @@ router.post('/createuser',
 ], 
 async (request, response) =>
 {
+    //set success msg false
+    let success = false;
+    
     //if there are errors return bad request
     const errors = validationResult(request);
     if (!errors.isEmpty()) {
-      return response.status(400).json({ errors: errors.array() });
+      return response.status(400).json({success, errors: errors.array() });
     }
 
     //check whether the user with this email exits already
@@ -34,7 +40,8 @@ async (request, response) =>
         let user =await User.findOne({email: request.body.email})
         if(user)        //if user alreay login with this email
         {
-            return response.status(400).json({error: "sorry a user with this email alreay exits"})
+            
+            return response.status(400).json({success, error: "sorry a user with this email alreay exits"})
         }
 
         //generate salt    --   protect against brute-force and rainbow table attacks
@@ -61,9 +68,9 @@ async (request, response) =>
         }
 
         //generate jwt(json web token) token    --  way to securely send data between client and server
-        const authToken = jwt.sign(data, JWT_SECRET);
-
-        response.json({authToken})     //send response
+        const token = jwt.sign(data, JWT_SECRET);
+        success = true;
+        response.json({success, token})     //send response
 
     }
     //catch unexpected error and display into console and send internal error to user
@@ -83,10 +90,13 @@ router.post('/login',
 ], 
 async (request, response) =>
 {
+    //set success msg false
+    let success = false;
+    
     //if there are errors return bad request
     const errors = validationResult(request);
     if (!errors.isEmpty()) {
-      return response.status(400).json({ errors: errors.array() });
+      return response.status(400).json({success,  errors: errors.array() });
     }
 
     //destructure
@@ -96,13 +106,13 @@ async (request, response) =>
         let user = await User.findOne({email})
         if(!user)       //if user not exits
         {
-            return response.status(400).json({error: "please try to login with correct credentials"})
+            return response.status(400).json({success, error: "please try to login with correct credentials"})
         }
 
         const comparePassword = await bcrypt.compare(password, user.password);
         if(!comparePassword)        //if password is not match
         {
-            return response.status(400).json({error: "please try to login with correct credentials"})
+            return response.status(400).json({success, error: "please try to login with correct credentials"})
         }
 
         //if password is correct 
@@ -116,9 +126,9 @@ async (request, response) =>
         }
 
         //generate jwt token
-        const authToken = jwt.sign(data, JWT_SECRET);
-
-        response.json({authToken})     //send response
+        const token = jwt.sign(data, JWT_SECRET);
+        success = true;
+        response.json({success, token})     //send response
 
         
     } 
@@ -136,8 +146,8 @@ router.post('/getuser', fetchUser, async (request, response) =>
 {
     try 
     {
-            userId = request.user.id;    
-            const user = await User.findById(userId).select("-password")    //select all fields without password
+            user = request.user.id;    
+            const user = await User.findById(user).select("-password")    //select all fields without password
             response.send(user)
     } 
     //catch unexpected error and display into console and send internal error to user

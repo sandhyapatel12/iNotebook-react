@@ -26,7 +26,7 @@ router.get('/fetchallnotes', fetchUser, async (request, response) =>
 
 })
 
-//ROUTE : 2 add a n ew note : POST "api/notes/addnote"  -->  login required
+//ROUTE : 2 add a new note : POST "api/notes/addnote"  -->  login required
 router.post('/addnote', 
 [
     body('title', 'please enter valid title').isLength({ min: 3 }),
